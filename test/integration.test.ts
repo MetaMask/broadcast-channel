@@ -359,15 +359,13 @@ function runTest(channelOptions: Options) {
         });
       });
       describe(".type", () => {
-        it("should get a type", async () => {
+        it.runIf(channelOptions.methods)("should get a type", async () => {
           const channel = new BroadcastChannel(AsyncTestUtil.randomString(12), channelOptions);
           const type = channel.method.type;
 
-          if (channelOptions.methods) {
-            expect(typeof type).toBe("string");
-            expect(type).not.toBe("");
-            expect(type).toBe(channelOptions.methods.type);
-          }
+          expect(typeof type).toBe("string");
+          expect(type).not.toBe("");
+          expect(type).toBe(channelOptions.methods!.type);
 
           channel.close();
         });
@@ -383,12 +381,10 @@ function runTest(channelOptions: Options) {
 
           channel.close();
         });
-        it("should redo the enforcement when null is given", async () => {
+        it.runIf(channelOptions.methods)("should redo the enforcement when null is given", async () => {
           enforceOptions(null);
           const channel = new BroadcastChannel(AsyncTestUtil.randomString(12), channelOptions);
-          if (channelOptions.methods) {
-            expect(channel.type).toBe(channelOptions.methods.type);
-          }
+          expect(channel.type).toBe(channelOptions.methods!.type);
 
           channel.close();
         });
@@ -458,10 +454,8 @@ function runTest(channelOptions: Options) {
     });
   });
   describe("final", () => {
-    it("should have closed all channels", () => {
-      if (isNode) {
-        expect(OPEN_BROADCAST_CHANNELS.size).toBe(0);
-      }
+    it.runIf(isNode)("should have closed all channels", () => {
+      expect(OPEN_BROADCAST_CHANNELS.size).toBe(0);
     });
   });
 }
