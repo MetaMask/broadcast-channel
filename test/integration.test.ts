@@ -390,9 +390,9 @@ function runTest(channelOptions: Options) {
         });
       });
       describe("other", () => {
-        it("should prefer localstorage if webWorkerSupport: false", async () => {
-          if (isNode) return;
+        it.runIf(!isNode)("should prefer localstorage if webWorkerSupport: false", async () => {
           // disable BroadcastChannel
+          enforceOptions(null);
           const broadcastChannelBefore = window.BroadcastChannel;
           Object.defineProperty(window, "BroadcastChannel", {
             enumerable: false,
