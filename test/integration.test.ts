@@ -6,7 +6,7 @@ import * as unload from "unload";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { BroadcastChannel, enforceOptions, OPEN_BROADCAST_CHANNELS, Options, RedundantAdaptiveBroadcastChannel } from "../src";
-import { assertThrows, randomString, wait, waitUntil } from "./test-util";
+import { randomString, wait, waitUntil } from "./test-util";
 
 if (isNode) {
   process.on("uncaughtException", (err, origin) => {
@@ -51,7 +51,13 @@ function runTest(channelOptions: Options) {
           const channelName = randomString(12);
           const channel = new BroadcastChannel(channelName, channelOptions);
           channel.close();
-          await assertThrows(() => channel.postMessage("foobar"), Error, "closed");
+          try {
+            channel.postMessage("foobar");
+            expect.fail("should have thrown");
+          } catch (e) {
+            // eslint-disable-next-line vitest/no-conditional-expect
+            expect((e as Error).message).toContain("closed");
+          }
         });
       });
       describe(".close()", () => {
@@ -517,7 +523,7 @@ describe("RedundantAdaptiveBroadcastChannel", () => {
         type: "simulate",
       });
       await channel.close();
-      await assertThrows(() => channel.postMessage("foobar"), Error, "closed");
+      await expect(channel.postMessage("foobar")).rejects.toThrow("closed");
     });
   });
 

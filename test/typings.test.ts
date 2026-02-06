@@ -3,12 +3,15 @@
  * checks if the typings are correct
  * run via 'npm run test:typings'
  */
-import { spawn } from "child-process-promise";
+import { spawn } from "child_process";
+import fs from "fs";
+import os from "os";
 import path from "path";
 import { describe, expect, it } from "vitest";
 
 describe("typings.test.ts", () => {
-  const mainPath = path.join(__dirname, "../src");
+  // Use the built types folder
+  const mainPath = path.join(__dirname, "../dist/lib.cjs/types");
   const codeBase = `
         import { 
             BroadcastChannel
@@ -18,43 +21,56 @@ describe("typings.test.ts", () => {
         };
     `;
 
-  const transpileCode = async (code: string) => {
-    const stdout: string[] = [];
-    const stderr: string[] = [];
+  const checkTypes = (code: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const tempFile = path.join(os.tmpdir(), `typing-test-${Date.now()}-${Math.random().toString(36).slice(2)}.ts`);
+      const fullCode = codeBase + "\n" + code;
 
-    const tsConfig = {
-      module: "commonjs",
-      target: "es6",
-      strict: true,
-      isolatedModules: false,
-      noUnusedLocals: false,
-    };
+      fs.writeFileSync(tempFile, fullCode);
 
-    const promise = spawn("ts-node", ["--compiler-options", JSON.stringify(tsConfig), "-e", codeBase + "\n" + code]);
-    const childProcess = promise.childProcess;
+      const stdout: string[] = [];
+      const stderr: string[] = [];
 
-    childProcess.stdout.on("data", (data: Buffer) => {
-      stdout.push(data.toString());
+      const child = spawn("tsc", ["--noEmit", "--strict", "--target", "es6", "--module", "commonjs", "--skipLibCheck", tempFile]);
+
+      child.stdout.on("data", (data: Buffer) => {
+        stdout.push(data.toString());
+      });
+      child.stderr.on("data", (data: Buffer) => {
+        stderr.push(data.toString());
+      });
+
+      child.on("close", (exitCode) => {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+
+        if (exitCode === 0) {
+          resolve();
+        } else {
+          reject(
+            new Error(`Type check failed
+                # Exit code: ${exitCode}
+                # Output: ${stdout.join("")}
+                # ErrOut: ${stderr.join("")}
+                `)
+          );
+        }
+      });
+
+      child.on("error", (err) => {
+        if (fs.existsSync(tempFile)) {
+          fs.unlinkSync(tempFile);
+        }
+        reject(err);
+      });
     });
-    childProcess.stderr.on("data", (data: Buffer) => {
-      stderr.push(data.toString());
-    });
-
-    try {
-      await promise;
-    } catch (err) {
-      throw new Error(`could not run
-                # Error: ${err}
-                # Output: ${stdout}
-                # ErrOut: ${stderr}
-                `);
-    }
   };
 
   describe("basic", () => {
     it("should sucess on basic test", async () => {
       // eslint-disable-next-line prettier/prettier
-      await transpileCode("console.log(\"Hello, world!\")");
+      await checkTypes("console.log(\"Hello, world!\")");
     });
 
     it("should fail on broken code", async () => {
@@ -62,7 +78,7 @@ describe("typings.test.ts", () => {
                 let x: string = 'foo';
                 x = 1337;
             `;
-      await expect(transpileCode(brokenCode)).rejects.toThrow();
+      await expect(checkTypes(brokenCode)).rejects.toThrow();
     });
   });
 
@@ -77,7 +93,7 @@ describe("typings.test.ts", () => {
                     channel.close();
                 })();
             `;
-      await transpileCode(code);
+      await checkTypes(code);
     });
 
     it("should not allow to set wrong onmessage", async () => {
@@ -91,7 +107,7 @@ describe("typings.test.ts", () => {
                     channel.close();
                 })();
             `;
-      await expect(transpileCode(code)).rejects.toThrow();
+      await expect(checkTypes(code)).rejects.toThrow();
     });
   });
 
@@ -104,7 +120,7 @@ describe("typings.test.ts", () => {
                     channel.close();
                 })();
             `;
-      await transpileCode(code);
+      await checkTypes(code);
     });
 
     it("should be ok to recieve", async () => {
@@ -119,7 +135,7 @@ describe("typings.test.ts", () => {
                     channel.close();
                 })();
             `;
-      await transpileCode(code);
+      await checkTypes(code);
     });
 
     it("should not allow to post wrong message", async () => {
@@ -130,7 +146,7 @@ describe("typings.test.ts", () => {
               channel.close();
           })();
       `;
-      await expect(transpileCode(code)).rejects.toThrow();
+      await expect(checkTypes(code)).rejects.toThrow();
     });
   });
 });

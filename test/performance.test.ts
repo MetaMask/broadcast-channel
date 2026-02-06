@@ -1,7 +1,7 @@
 import { describe, it } from "vitest";
 
 import { BroadcastChannel } from "../src/index.js";
-import { performanceNow, randomString, wait } from "./test-util";
+import { randomString, wait } from "./test-util";
 
 const benchmark = {
   openClose: {},
@@ -16,7 +16,7 @@ const options = {
 };
 
 const elapsedTime = (before) => {
-  return performanceNow() - before;
+  return performance.now() - before;
 };
 
 describe("performance.test.js", () => {
@@ -32,7 +32,7 @@ describe("performance.test.js", () => {
     const amount = 110;
     const channels = [];
 
-    const startTime = performanceNow();
+    const startTime = performance.now();
     for (let i = 0; i < amount; i++) {
       const channel = new BroadcastChannel(channelName, options);
       channels.push(channel);
@@ -59,7 +59,7 @@ describe("performance.test.js", () => {
       };
     });
 
-    const startTime = performanceNow();
+    const startTime = performance.now();
     for (let i = 0; i < msgAmount; i++) {
       channelSender.postMessage("foobar");
     }
@@ -95,7 +95,7 @@ describe("performance.test.js", () => {
       };
     });
 
-    const startTime = performanceNow();
+    const startTime = performance.now();
     channelSender.postMessage("ping");
     await waitPromise;
 

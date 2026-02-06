@@ -1,17 +1,15 @@
 /**
- * Test utilities to replace async-test-util
+ * Test utilities
  */
 
 /**
- * Generate a random string of specified length
+ * Generate a random string of specified length using Web Crypto API
  */
 export function randomString(length: number): string {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  const randomValues = new Uint8Array(length);
+  crypto.getRandomValues(randomValues);
+  return Array.from(randomValues, (v) => chars[v % chars.length]).join("");
 }
 
 /**
@@ -40,40 +38,6 @@ export async function waitUntil(condition: () => boolean | Promise<boolean>, tim
 }
 
 /**
- * Assert that an async function throws an error
- * @param fn - Function that should throw
- * @param errorType - Expected error type (optional)
- * @param contains - String that should be in error message (optional)
- */
-export async function assertThrows(
-  fn: () => Promise<unknown> | unknown,
-  errorType?: new (...args: unknown[]) => Error,
-  contains?: string
-): Promise<void> {
-  let thrown = false;
-  let error: Error | undefined;
-
-  try {
-    await fn();
-  } catch (e) {
-    thrown = true;
-    error = e as Error;
-  }
-
-  if (!thrown) {
-    throw new Error("Expected function to throw, but it did not");
-  }
-
-  if (errorType && !(error instanceof errorType)) {
-    throw new Error(`Expected error to be instance of ${errorType.name}, but got ${error?.constructor.name}`);
-  }
-
-  if (contains && error && !error.message.includes(contains)) {
-    throw new Error(`Expected error message to contain "${contains}", but got "${error.message}"`);
-  }
-}
-
-/**
  * Generate a random number between min and max (inclusive)
  */
 export function randomNumber(min: number, max: number): number {
@@ -85,14 +49,4 @@ export function randomNumber(min: number, max: number): number {
  */
 export function randomBoolean(): boolean {
   return Math.random() > 0.5;
-}
-
-/**
- * Get current time in milliseconds with high precision
- */
-export function performanceNow(): number {
-  if (typeof performance !== "undefined" && performance.now) {
-    return performance.now();
-  }
-  return Date.now();
 }
