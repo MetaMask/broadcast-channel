@@ -45,7 +45,7 @@
     "size:webpack": "npm run size:prewebpack && echo \"Build-Size Webpack (minified+gzip):\" && gzip-size --raw ./test_tmp/webpack.bundle.js",
     "size:esbuild": "esbuild dist/lib.cjs/index.js --bundle --outfile=test_tmp/esbuild.bundle.js --format=iife --global-name=BroadcastChannel --minify && echo \"Build-Size esbuild (minified+gzip):\" && gzip-size --raw test_tmp/esbuild.bundle.js",
     "size:rollup": "rollup --config ./config/rollup.config.js && echo \"Build-Size Rollup (minified+gzip):\" && gzip-size --raw ./test_tmp/rollup.bundle.js",
-    "lint": "eslint src test --fix --cache",
+    "lint": "torus-scripts lint",
     "clear": "rimraf -rf ./dist && rimraf -rf ./gen",
     "build:es6node": "rimraf -rf dist/esnode && cross-env NODE_ENV=es6 babel src --out-dir dist/esnode",
     "build:es6browser": "rimraf -rf dist/esbrowser && cross-env NODE_ENV=es6 babel src --out-dir dist/esbrowser",
