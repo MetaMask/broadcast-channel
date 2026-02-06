@@ -1,8 +1,8 @@
-import AsyncTestUtil from "async-test-util";
 import isNode from "detect-node";
 import { describe, expect, it } from "vitest";
 
 import { IndexedDbMethod } from "../../src/index.js";
+import { randomString, wait, waitUntil } from "../test-util";
 
 console.log(IndexedDbMethod.getIdb);
 if (isNode) {
@@ -31,13 +31,13 @@ describe("unit/indexed-db.method.test.js", () => {
 
   describe(".createDatabase()", () => {
     it("should create a database", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       expect(db).toBeTruthy();
     });
 
     it("should be able to call twice", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
       const db1 = await IndexedDbMethod.createDatabase(channelName);
       const db2 = await IndexedDbMethod.createDatabase(channelName);
       expect(db1).toBeTruthy();
@@ -48,8 +48,8 @@ describe("unit/indexed-db.method.test.js", () => {
   describe(".writeMessage()", () => {
     // eslint-disable-next-line vitest/expect-expect
     it("should write the message to the db", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       await IndexedDbMethod.writeMessage(db, readerUuid, {
         foo: "bar",
@@ -59,8 +59,8 @@ describe("unit/indexed-db.method.test.js", () => {
 
   describe(".getAllMessages()", () => {
     it("should get the message", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       await IndexedDbMethod.writeMessage(db, readerUuid, {
         foo: "bar",
@@ -72,8 +72,8 @@ describe("unit/indexed-db.method.test.js", () => {
     });
 
     it("should get the messages", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       await IndexedDbMethod.writeMessage(db, readerUuid, {
         foo: "bar",
@@ -89,8 +89,8 @@ describe("unit/indexed-db.method.test.js", () => {
 
   describe(".getOldMessages()", () => {
     it("should only get too old messages", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       const msgJson = {
         foo: "old",
@@ -98,7 +98,7 @@ describe("unit/indexed-db.method.test.js", () => {
 
       // write 10 messages
       await Promise.all(new Array(10).fill().map(() => IndexedDbMethod.writeMessage(db, readerUuid, msgJson)));
-      await AsyncTestUtil.wait(500);
+      await wait(500);
 
       // write 2 new messages
       await Promise.all(new Array(10).fill().map(() => IndexedDbMethod.writeMessage(db, readerUuid, msgJson)));
@@ -113,15 +113,15 @@ describe("unit/indexed-db.method.test.js", () => {
 
   describe(".cleanOldMessages()", () => {
     it("should clean up old messages", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       const msgJson = {
         foo: "bar",
       };
       await IndexedDbMethod.writeMessage(db, readerUuid, msgJson);
 
-      await AsyncTestUtil.wait(500);
+      await wait(500);
 
       await IndexedDbMethod.cleanOldMessages(db, 200);
 
@@ -133,8 +133,8 @@ describe("unit/indexed-db.method.test.js", () => {
 
   describe(".getMessagesHigherThan()", () => {
     it("should only get messages with higher id", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
-      const readerUuid = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
+      const readerUuid = randomString(10);
       const db = await IndexedDbMethod.createDatabase(channelName);
       const msgJson = {
         foo: "bar",
@@ -154,14 +154,14 @@ describe("unit/indexed-db.method.test.js", () => {
   describe("core-functions", () => {
     describe(".create()", () => {
       it("should create a channelState", async () => {
-        const channelName = AsyncTestUtil.randomString(10);
+        const channelName = randomString(10);
         const channelState = await IndexedDbMethod.create(channelName);
         expect(channelState).toBeTruthy();
         IndexedDbMethod.close(channelState);
       });
 
       it("should be called twice", async () => {
-        const channelName = AsyncTestUtil.randomString(12);
+        const channelName = randomString(12);
         const channelState1 = await IndexedDbMethod.create(channelName);
         const channelState2 = await IndexedDbMethod.create(channelName);
         expect(channelState1).toBeTruthy();
@@ -173,7 +173,7 @@ describe("unit/indexed-db.method.test.js", () => {
 
       it("should handle close events", async () => {
         let callbackCount = 0;
-        const channelName = AsyncTestUtil.randomString(10);
+        const channelName = randomString(10);
         const channelState = await IndexedDbMethod.create(channelName, {
           idb: {
             onclose: () => callbackCount++,
@@ -190,7 +190,7 @@ describe("unit/indexed-db.method.test.js", () => {
 
     describe(".postMessage()", () => {
       it("should not crash", async () => {
-        const channelName = AsyncTestUtil.randomString(10);
+        const channelName = randomString(10);
         const channelState = await IndexedDbMethod.create(channelName);
         expect(channelState).toBeTruthy();
         await IndexedDbMethod.postMessage(channelState, {
@@ -209,7 +209,7 @@ describe("unit/indexed-db.method.test.js", () => {
 
     describe(".onMessage()", () => {
       it("should emit the message on other", async () => {
-        const channelName = AsyncTestUtil.randomString(12);
+        const channelName = randomString(12);
         const channelStateOther = await IndexedDbMethod.create(channelName);
         const channelStateOwn = await IndexedDbMethod.create(channelName);
 
@@ -221,7 +221,7 @@ describe("unit/indexed-db.method.test.js", () => {
         IndexedDbMethod.onMessage(channelStateOther, (msg) => emittedOther.push(msg), new Date().getTime());
         await IndexedDbMethod.postMessage(channelStateOwn, msgJson);
 
-        await AsyncTestUtil.waitUntil(() => emittedOther.length === 1);
+        await waitUntil(() => emittedOther.length === 1);
         expect(emittedOther[0]).toEqual(msgJson);
 
         await IndexedDbMethod.close(channelStateOther);
@@ -229,7 +229,7 @@ describe("unit/indexed-db.method.test.js", () => {
       });
 
       it("should also work if localstorage does not work", async () => {
-        const channelName = AsyncTestUtil.randomString(12);
+        const channelName = randomString(12);
 
         // disable localStorage
         const localStorageBefore = window.localStorage;
@@ -244,7 +244,7 @@ describe("unit/indexed-db.method.test.js", () => {
         const emittedOther = [];
         const channelStateOther = await IndexedDbMethod.create(channelName);
         IndexedDbMethod.onMessage(channelStateOther, (msg) => emittedOther.push(msg), new Date().getTime());
-        await AsyncTestUtil.wait(100);
+        await wait(100);
 
         const channelStateOwn = await IndexedDbMethod.create(channelName);
         const msgJson = {
@@ -252,7 +252,7 @@ describe("unit/indexed-db.method.test.js", () => {
         };
         await IndexedDbMethod.postMessage(channelStateOwn, msgJson);
 
-        await AsyncTestUtil.waitUntil(() => emittedOther.length === 1);
+        await waitUntil(() => emittedOther.length === 1);
         expect(emittedOther[0]).toEqual(msgJson);
 
         await IndexedDbMethod.close(channelStateOther);
@@ -270,7 +270,7 @@ describe("unit/indexed-db.method.test.js", () => {
           ttl: 500,
         },
       };
-      const channelName = AsyncTestUtil.randomString(12);
+      const channelName = randomString(12);
       const channelStateOther = await IndexedDbMethod.create(channelName, channelOptions);
       const channelStateOwn = await IndexedDbMethod.create(channelName, channelOptions);
       const msgJson = {
@@ -281,17 +281,17 @@ describe("unit/indexed-db.method.test.js", () => {
       await Promise.all(new Array(100).fill(0).map(() => IndexedDbMethod.postMessage(channelStateOwn, msgJson)));
 
       // w8 until ttl has reached
-      await AsyncTestUtil.wait(channelOptions.idb.ttl);
+      await wait(channelOptions.idb.ttl);
 
       // send 100 messages again to trigger cleanup
       for (let x = 0; x < 100; x++) {
         await IndexedDbMethod.postMessage(channelStateOwn, msgJson);
       }
 
-      await AsyncTestUtil.wait(channelOptions.idb.ttl);
+      await wait(channelOptions.idb.ttl);
 
       // ensure only the last 100 messages are here
-      await AsyncTestUtil.waitUntil(async () => {
+      await waitUntil(async () => {
         const messages = await IndexedDbMethod.getAllMessages(channelStateOwn.db);
         return messages.length <= 100;
       });

@@ -1,7 +1,7 @@
-import AsyncTestUtil from "async-test-util";
 import { describe, it } from "vitest";
 
 import { BroadcastChannel } from "../src/index.js";
+import { performanceNow, randomString, wait } from "./test-util";
 
 const benchmark = {
   openClose: {},
@@ -16,23 +16,23 @@ const options = {
 };
 
 const elapsedTime = (before) => {
-  return AsyncTestUtil.performanceNow() - before;
+  return performanceNow() - before;
 };
 
 describe("performance.test.js", () => {
   // eslint-disable-next-line vitest/expect-expect
   it("wait a bit for jit etc..", async () => {
-    await AsyncTestUtil.wait(2000);
+    await wait(2000);
   });
 
   // eslint-disable-next-line vitest/expect-expect
   it("open/close channels", async () => {
-    const channelName = AsyncTestUtil.randomString(10);
+    const channelName = randomString(10);
 
     const amount = 110;
     const channels = [];
 
-    const startTime = AsyncTestUtil.performanceNow();
+    const startTime = performanceNow();
     for (let i = 0; i < amount; i++) {
       const channel = new BroadcastChannel(channelName, options);
       channels.push(channel);
@@ -45,7 +45,7 @@ describe("performance.test.js", () => {
 
   // eslint-disable-next-line vitest/expect-expect
   it("sendRecieve.parallel", async () => {
-    const channelName = AsyncTestUtil.randomString(10);
+    const channelName = randomString(10);
     const channelSender = new BroadcastChannel(channelName, options);
     const channelReciever = new BroadcastChannel(channelName, options);
     const msgAmount = 2000;
@@ -59,7 +59,7 @@ describe("performance.test.js", () => {
       };
     });
 
-    const startTime = AsyncTestUtil.performanceNow();
+    const startTime = performanceNow();
     for (let i = 0; i < msgAmount; i++) {
       channelSender.postMessage("foobar");
     }
@@ -74,7 +74,7 @@ describe("performance.test.js", () => {
 
   // eslint-disable-next-line vitest/expect-expect
   it("sendRecieve.series", { timeout: 10000 }, async () => {
-    const channelName = AsyncTestUtil.randomString(10);
+    const channelName = randomString(10);
     const channelSender = new BroadcastChannel(channelName, options);
     const channelReciever = new BroadcastChannel(channelName, options);
     const msgAmount = 600;
@@ -95,7 +95,7 @@ describe("performance.test.js", () => {
       };
     });
 
-    const startTime = AsyncTestUtil.performanceNow();
+    const startTime = performanceNow();
     channelSender.postMessage("ping");
     await waitPromise;
 

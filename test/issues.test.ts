@@ -1,9 +1,9 @@
 /* eslint-disable vitest/expect-expect */
-import AsyncTestUtil from "async-test-util";
 import isNode from "detect-node";
 import { describe, expect, it } from "vitest";
 
 import { BroadcastChannel } from "../src/index.js";
+import { randomString } from "./test-util";
 
 describe("issues.test.js", () => {
   it("#4 should throw when window.BroadcastChannel is overwritten", async () => {
@@ -23,7 +23,7 @@ describe("issues.test.js", () => {
   });
   it("https://github.com/pubkey/rxdb/issues/852 if cleanup did not remove the info-file, it should not crash even if socket-file not exists", async () => {
     if (!isNode) return; // only on node
-    const channelName = AsyncTestUtil.randomString(12);
+    const channelName = randomString(12);
 
     const channel1 = new BroadcastChannel(channelName);
     await channel1._prepP;
@@ -42,14 +42,14 @@ describe("issues.test.js", () => {
     await channel2.close();
   });
   it("write many messages and then close", async () => {
-    const channelName = AsyncTestUtil.randomString(12);
+    const channelName = randomString(12);
     const channel = new BroadcastChannel(channelName, { type: "simulate" });
     new Array(5000)
       .fill(0)
       .map((_i, idx) => ({
         foo: "bar",
         idx,
-        longString: AsyncTestUtil.randomString(40),
+        longString: randomString(40),
       }))
       .map((msg) => channel.postMessage(msg));
 

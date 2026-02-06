@@ -7,11 +7,16 @@ var {
     BroadcastChannel
 } = require('../../');
 
-var {
-    randomNumber,
-    randomBoolean,
-    wait
-} = require('async-test-util');
+// Test utilities (replacing async-test-util)
+function wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function randomBoolean() {
+    return Math.random() > 0.5;
+}
 var resolved = Promise.resolve();
 
 // overwrite console.log
