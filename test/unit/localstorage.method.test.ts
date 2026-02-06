@@ -1,8 +1,8 @@
-import AsyncTestUtil from "async-test-util";
 import isNode from "detect-node";
 import { describe, expect, it } from "vitest";
 
 import { LocalstorageMethod as LocalStorageMethod } from "../../src/index";
+import { randomString, waitUntil } from "../test-util";
 
 describe("unit/localstorage.method.test.js", () => {
   if (isNode) return;
@@ -18,8 +18,8 @@ describe("unit/localstorage.method.test.js", () => {
   describe(".postMessage()", () => {
     it("should set the message", async () => {
       const channelState = {
-        channelName: AsyncTestUtil.randomString(10),
-        uuid: AsyncTestUtil.randomString(10),
+        channelName: randomString(10),
+        uuid: randomString(10),
       };
       const json = { foo: "bar" };
       await LocalStorageMethod.postMessage(channelState, json);
@@ -31,8 +31,8 @@ describe("unit/localstorage.method.test.js", () => {
 
     it("should fire an event", async () => {
       const channelState = {
-        channelName: AsyncTestUtil.randomString(10),
-        uuid: AsyncTestUtil.randomString(10),
+        channelName: randomString(10),
+        uuid: randomString(10),
       };
       const json = { foo: "bar" };
 
@@ -43,7 +43,7 @@ describe("unit/localstorage.method.test.js", () => {
 
       LocalStorageMethod.postMessage(channelState, json);
 
-      await AsyncTestUtil.waitUntil(() => emitted.length === 1);
+      await waitUntil(() => emitted.length === 1);
       expect(emitted[0].data.foo).toBe("bar");
 
       LocalStorageMethod.removeStorageEventListener(listener);
@@ -52,7 +52,7 @@ describe("unit/localstorage.method.test.js", () => {
 
   describe(".create()", () => {
     it("create an instance", async () => {
-      const channelName = AsyncTestUtil.randomString(10);
+      const channelName = randomString(10);
       const state = LocalStorageMethod.create(channelName);
       expect(state.uuid).toBeTruthy();
       LocalStorageMethod.close(state);
@@ -61,7 +61,7 @@ describe("unit/localstorage.method.test.js", () => {
 
   describe(".onMessage()", () => {
     it("should emit to the other channel", async () => {
-      const channelName = AsyncTestUtil.randomString(12);
+      const channelName = randomString(12);
       const channelState1 = await LocalStorageMethod.create(channelName);
       const channelState2 = await LocalStorageMethod.create(channelName);
 
@@ -79,7 +79,7 @@ describe("unit/localstorage.method.test.js", () => {
       };
       LocalStorageMethod.postMessage(channelState1, json);
 
-      await AsyncTestUtil.waitUntil(() => emitted.length === 1);
+      await waitUntil(() => emitted.length === 1);
 
       expect(emitted[0]).toEqual(json);
 

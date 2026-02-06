@@ -1,12 +1,12 @@
-import AsyncTestUtil from "async-test-util";
 import { describe, expect, it } from "vitest";
 
 import { BroadcastChannel } from "../../src/index.js";
+import { randomString } from "../test-util";
 
 describe("unit/custom.method.test.js", () => {
   describe("custom methods", () => {
     it("should select provided method", () => {
-      const channelName = AsyncTestUtil.randomString(12);
+      const channelName = randomString(12);
       const method = {
         type: "custom",
         canBeUsed: () => true,
@@ -17,7 +17,7 @@ describe("unit/custom.method.test.js", () => {
       channel.close();
     });
     it("should select one of the provided methods", () => {
-      const channelName = AsyncTestUtil.randomString(12);
+      const channelName = randomString(12);
       const method = {
         type: "custom",
         canBeUsed: () => true,

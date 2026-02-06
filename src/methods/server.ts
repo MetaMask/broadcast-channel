@@ -7,7 +7,7 @@
  */
 
 import { getPublic, sign } from "@toruslabs/eccrypto";
-import { decryptData, encryptData, keccak256 } from "@toruslabs/metadata-helpers";
+import { bytesToHex, decryptData, encryptData, keccak256 } from "@toruslabs/metadata-helpers";
 import { ObliviousSet } from "oblivious-set";
 import { io, Socket } from "socket.io-client";
 
@@ -69,7 +69,7 @@ export function postMessage(channelState: ChannelState, messageJson: MessageObje
       .then(async () => {
         const key = storageKey(channelState.channelName);
         const channelEncPrivKey = keccak256(Buffer.from(key, "utf8"));
-        const encData = await encryptData(channelEncPrivKey.toString("hex"), {
+        const encData = await encryptData(bytesToHex(channelEncPrivKey), {
           token: generateRandomId(),
           time: Date.now(),
           data: messageJson,
@@ -78,9 +78,9 @@ export function postMessage(channelState: ChannelState, messageJson: MessageObje
         const body: MessageBody = {
           allowedOrigin: channelState.server.allowed_origin,
           sameIpCheck: true,
-          key: getPublic(channelEncPrivKey).toString("hex"),
+          key: bytesToHex(getPublic(channelEncPrivKey)),
           data: encData,
-          signature: (await sign(channelEncPrivKey, keccak256(Buffer.from(encData, "utf8")))).toString("hex"),
+          signature: bytesToHex(await sign(channelEncPrivKey, keccak256(Buffer.from(encData, "utf8")))),
         };
         if (channelState.timeout) body.timeout = channelState.timeout;
         return fetch(`${channelState.server.api_url}/channel/set`, {
@@ -139,7 +139,7 @@ export function setupSocketConnection(socketUrl: string, channelState: ChannelSt
 
   const key = storageKey(channelState.channelName);
   const channelEncPrivKey = keccak256(Buffer.from(key, "utf8"));
-  const channelPubKey = getPublic(channelEncPrivKey).toString("hex");
+  const channelPubKey = bytesToHex(getPublic(channelEncPrivKey));
   if (socketConn.connected) {
     socketConn.emit("v2:check_auth_status", channelPubKey, { sameIpCheck: true, allowedOrigin: channelState.server.allowed_origin });
   } else {
@@ -176,7 +176,7 @@ export function setupSocketConnection(socketUrl: string, channelState: ChannelSt
 
   const listener = async (ev: string) => {
     try {
-      const decData = await decryptData<Message>(channelEncPrivKey.toString("hex"), ev);
+      const decData = await decryptData<Message>(bytesToHex(channelEncPrivKey), ev);
       log.info(decData);
       fn(decData);
     } catch (error) {

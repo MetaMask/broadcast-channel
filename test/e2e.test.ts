@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 
-import AsyncTestUtil from "async-test-util";
 import { Selector } from "testcafe";
+
+import { waitUntil } from "./test-util";
 
 const BASE_PAGE = "http://localhost:8080/e2e.html";
 
@@ -43,7 +44,7 @@ async function nativeBroadcastChannelExists(t) {
       }
 
       await assertNoErrors(t);
-      await AsyncTestUtil.waitUntil(
+      await waitUntil(
         async () => {
           await assertNoErrors(t);
           const stateContainer = Selector("#state");

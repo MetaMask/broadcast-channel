@@ -5,7 +5,17 @@
 require('@babel/polyfill');
 var { BroadcastChannel } = require('../../');
 var { getParameterByName } = require('./util.js');
-var { wait, randomNumber, randomBoolean } = require('async-test-util');
+
+// Test utilities (replacing async-test-util)
+function wait(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+}
+function randomNumber(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+function randomBoolean() {
+    return Math.random() > 0.5;
+}
 
 function run() {
     console.log('run()');
