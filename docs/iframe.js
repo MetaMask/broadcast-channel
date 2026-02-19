@@ -20315,7 +20315,7 @@
         return new Promise((resolve, reject) => {
           util.sleep().then(async () => {
             const key = storageKey(channelState.channelName);
-            const channelEncPrivKey = metadataHelpers.keccak256(Buffer.from(key, "utf8"));
+            const channelEncPrivKey = metadataHelpers.keccak256(metadataHelpers.utf8ToBytes(key));
             const encData = await metadataHelpers.encryptData(metadataHelpers.bytesToHex(channelEncPrivKey), {
               token: util.generateRandomId(),
               time: Date.now(),
@@ -20327,7 +20327,7 @@
               sameIpCheck: true,
               key: metadataHelpers.bytesToHex(eccrypto.getPublic(channelEncPrivKey)),
               data: encData,
-              signature: metadataHelpers.bytesToHex(await eccrypto.sign(channelEncPrivKey, metadataHelpers.keccak256(Buffer.from(encData, "utf8"))))
+              signature: metadataHelpers.bytesToHex(await eccrypto.sign(channelEncPrivKey, metadataHelpers.keccak256(metadataHelpers.utf8ToBytes(encData))))
             };
             if (channelState.timeout) body.timeout = channelState.timeout;
             return fetch(`${channelState.server.api_url}/channel/set`, {
@@ -20377,7 +20377,7 @@
       function setupSocketConnection(socketUrl, channelState, fn) {
         const socketConn = getSocketInstance(socketUrl);
         const key = storageKey(channelState.channelName);
-        const channelEncPrivKey = metadataHelpers.keccak256(Buffer.from(key, "utf8"));
+        const channelEncPrivKey = metadataHelpers.keccak256(metadataHelpers.utf8ToBytes(key));
         const channelPubKey = metadataHelpers.bytesToHex(eccrypto.getPublic(channelEncPrivKey));
         if (socketConn.connected) {
           socketConn.emit("v2:check_auth_status", channelPubKey, {
