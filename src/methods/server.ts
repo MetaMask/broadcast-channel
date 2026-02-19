@@ -7,7 +7,7 @@
  */
 
 import { getPublic, sign } from "@toruslabs/eccrypto";
-import { bytesToHex, decryptData, encryptData, keccak256 } from "@toruslabs/metadata-helpers";
+import { bytesToHex, decryptData, encryptData, keccak256, utf8ToBytes } from "@toruslabs/metadata-helpers";
 import { ObliviousSet } from "oblivious-set";
 import { io, Socket } from "socket.io-client";
 
@@ -68,7 +68,7 @@ export function postMessage(channelState: ChannelState, messageJson: MessageObje
     sleep()
       .then(async () => {
         const key = storageKey(channelState.channelName);
-        const channelEncPrivKey = keccak256(Buffer.from(key, "utf8"));
+        const channelEncPrivKey = keccak256(utf8ToBytes(key));
         const encData = await encryptData(bytesToHex(channelEncPrivKey), {
           token: generateRandomId(),
           time: Date.now(),
@@ -80,7 +80,7 @@ export function postMessage(channelState: ChannelState, messageJson: MessageObje
           sameIpCheck: true,
           key: bytesToHex(getPublic(channelEncPrivKey)),
           data: encData,
-          signature: bytesToHex(await sign(channelEncPrivKey, keccak256(Buffer.from(encData, "utf8")))),
+          signature: bytesToHex(await sign(channelEncPrivKey, keccak256(utf8ToBytes(encData)))),
         };
         if (channelState.timeout) body.timeout = channelState.timeout;
         return fetch(`${channelState.server.api_url}/channel/set`, {
@@ -138,7 +138,7 @@ export function setupSocketConnection(socketUrl: string, channelState: ChannelSt
   const socketConn = getSocketInstance(socketUrl);
 
   const key = storageKey(channelState.channelName);
-  const channelEncPrivKey = keccak256(Buffer.from(key, "utf8"));
+  const channelEncPrivKey = keccak256(utf8ToBytes(key));
   const channelPubKey = bytesToHex(getPublic(channelEncPrivKey));
   if (socketConn.connected) {
     socketConn.emit("v2:check_auth_status", channelPubKey, { sameIpCheck: true, allowedOrigin: channelState.server.allowed_origin });
