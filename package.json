@@ -70,8 +70,7 @@
     "@babel/runtime": "^7.28.6",
     "@toruslabs/constants": "^15.0.0",
     "@toruslabs/eccrypto": "^7.0.0",
-    "@toruslabs/metadata-helpers": "^8.0.0",
-    "base64url": "^3.0.1",
+    "@toruslabs/metadata-helpers": "^8.1.0",
     "loglevel": "^1.9.2",
     "oblivious-set": "2.0.0",
     "socket.io-client": "^4.8.3"
