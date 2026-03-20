@@ -1,3 +1,5 @@
+import { BUILD_ENV_TYPE } from "@toruslabs/constants";
+
 export type MethodType = "idb" | "native" | "localstorage" | "simulate" | "server";
 
 export interface ListenerObject {
@@ -40,6 +42,7 @@ interface LocalStorageOptions {
 }
 
 interface ServerOptions {
+  build_env?: BUILD_ENV_TYPE;
   api_url?: string;
   socket_url?: string;
   removeTimeout?: number;

@@ -8640,72 +8640,64 @@
         SAPPHIRE_DEVNET: "sapphire_devnet",
         SAPPHIRE_MAINNET: "sapphire_mainnet"
       };
-      var PROXY_CONTRACT_ADDRESS = {
-        [TORUS_LEGACY_NETWORK.MAINNET]: "0xf20336e16B5182637f09821c27BDe29b0AFcfe80",
-        [TORUS_LEGACY_NETWORK.TESTNET]: "0xd084604e5FA387FbC2Da8bAab07fDD6aDED4614A",
-        [TORUS_LEGACY_NETWORK.CYAN]: "0x9f072ba19b3370e512aa1b4bfcdaf97283168005",
-        [TORUS_LEGACY_NETWORK.AQUA]: "0x29Dea82a0509153b91040ee13cDBba0f03efb625",
-        [TORUS_LEGACY_NETWORK.CELESTE]: "0x6Bffb4e89453069E7487f0fa5c9f4a2D771cce6c"
+      var BUILD_ENV = {
+        PRODUCTION: "production",
+        DEVELOPMENT: "development",
+        STAGING: "staging",
+        TESTING: "testing"
       };
-      var MULTI_CLUSTER_NETWORKS = [
-        // TORUS_LEGACY_NETWORK.AQUA,
-        // TORUS_LEGACY_NETWORK.CELESTE,
-        // TORUS_LEGACY_NETWORK.CYAN,
-      ];
       var LEGACY_NETWORKS_ROUTE_MAP = {
         [TORUS_LEGACY_NETWORK.AQUA]: {
-          migrationCompleted: true,
           networkIdentifier: "aqua",
           networkMigratedTo: TORUS_SAPPHIRE_NETWORK.SAPPHIRE_MAINNET
         },
         [TORUS_LEGACY_NETWORK.CELESTE]: {
-          migrationCompleted: true,
           networkIdentifier: "celeste",
           networkMigratedTo: TORUS_SAPPHIRE_NETWORK.SAPPHIRE_MAINNET
         },
         [TORUS_LEGACY_NETWORK.CYAN]: {
-          migrationCompleted: true,
           networkIdentifier: "cyan",
           networkMigratedTo: TORUS_SAPPHIRE_NETWORK.SAPPHIRE_MAINNET
         },
         [TORUS_LEGACY_NETWORK.MAINNET]: {
-          migrationCompleted: true,
           networkIdentifier: "mainnet",
           networkMigratedTo: TORUS_SAPPHIRE_NETWORK.SAPPHIRE_MAINNET
         },
         [TORUS_LEGACY_NETWORK.TESTNET]: {
-          migrationCompleted: true,
           networkIdentifier: "teal",
           networkMigratedTo: TORUS_SAPPHIRE_NETWORK.SAPPHIRE_DEVNET
         }
       };
-      var NETWORK_MAP = {
-        [TORUS_LEGACY_NETWORK.MAINNET]: "mainnet",
-        [TORUS_LEGACY_NETWORK.TESTNET]: "goerli",
-        [TORUS_LEGACY_NETWORK.CYAN]: "polygon-mainnet",
-        [TORUS_LEGACY_NETWORK.AQUA]: "polygon-mainnet",
-        [TORUS_LEGACY_NETWORK.CELESTE]: "polygon-mainnet"
+      var CITADEL_SERVER_MAP = {
+        [BUILD_ENV.PRODUCTION]: "https://api.web3auth.io/citadel-service",
+        [BUILD_ENV.DEVELOPMENT]: "https://api-develop.web3auth.io/citadel-service",
+        [BUILD_ENV.STAGING]: "https://api.web3auth.io/citadel-service",
+        [BUILD_ENV.TESTING]: "https://api-develop.web3auth.io/citadel-service"
       };
-      var SIGNER_MAP = {
-        [TORUS_SAPPHIRE_NETWORK.SAPPHIRE_MAINNET]: "https://api.web3auth.io/signer-service",
-        [TORUS_SAPPHIRE_NETWORK.SAPPHIRE_DEVNET]: "https://api.web3auth.io/signer-service",
-        [TORUS_LEGACY_NETWORK.MAINNET]: "https://api.web3auth.io/signer-service",
-        [TORUS_LEGACY_NETWORK.TESTNET]: "https://api.web3auth.io/signer-service",
-        [TORUS_LEGACY_NETWORK.CYAN]: "https://api.web3auth.io/signer-polygon-service",
-        [TORUS_LEGACY_NETWORK.AQUA]: "https://api.web3auth.io/signer-polygon-service",
-        [TORUS_LEGACY_NETWORK.CELESTE]: "https://api.web3auth.io/signer-polygon-service"
+      var LEGACY_METADATA_MAP = {
+        [BUILD_ENV.PRODUCTION]: "https://api.web3auth.io/metadata-service",
+        [BUILD_ENV.DEVELOPMENT]: "https://api-develop.web3auth.io/metadata-service",
+        [BUILD_ENV.STAGING]: "https://api.web3auth.io/metadata-service",
+        [BUILD_ENV.TESTING]: "https://api-develop.web3auth.io/metadata-service"
       };
-      var METADATA_MAP = {
-        [TORUS_LEGACY_NETWORK.MAINNET]: "https://api.web3auth.io/metadata-service",
-        [TORUS_LEGACY_NETWORK.TESTNET]: "https://api.web3auth.io/metadata-service",
-        [TORUS_LEGACY_NETWORK.CYAN]: "https://api.web3auth.io/metadata-service",
-        [TORUS_LEGACY_NETWORK.AQUA]: "https://api.web3auth.io/metadata-service",
-        [TORUS_LEGACY_NETWORK.CELESTE]: "https://api.web3auth.io/metadata-service"
+      var FND_SERVER_MAP = {
+        [BUILD_ENV.PRODUCTION]: "https://api.web3auth.io/fnd-service",
+        [BUILD_ENV.DEVELOPMENT]: "https://api-develop.web3auth.io/fnd-service",
+        [BUILD_ENV.STAGING]: "https://api.web3auth.io/fnd-service",
+        [BUILD_ENV.TESTING]: "https://api-develop.web3auth.io/fnd-service"
       };
-      var FND_SERVER = "https://api.web3auth.io/fnd-service";
-      var SESSION_SERVER_API_URL = "https://api.web3auth.io/session-service";
-      var SESSION_SERVER_SOCKET_URL = "https://session.web3auth.io";
-      var AUTHJS_SERVER_URL = "https://api.web3auth.io/authjs-service";
+      var STORAGE_SERVER_MAP = {
+        [BUILD_ENV.PRODUCTION]: "https://api.web3auth.io/session-service",
+        [BUILD_ENV.DEVELOPMENT]: "https://api-develop.web3auth.io/session-service",
+        [BUILD_ENV.STAGING]: "https://api.web3auth.io/session-service",
+        [BUILD_ENV.TESTING]: "https://api-develop.web3auth.io/session-service"
+      };
+      var STORAGE_SERVER_SOCKET_URL_MAP = {
+        [BUILD_ENV.PRODUCTION]: "https://session.web3auth.io",
+        [BUILD_ENV.DEVELOPMENT]: "https://develop-session.web3auth.io",
+        [BUILD_ENV.STAGING]: "https://session.web3auth.io",
+        [BUILD_ENV.TESTING]: "https://develop-session.web3auth.io"
+      };
       var KEY_TYPE = {
         SECP256K1: "secp256k1",
         ED25519: "ed25519"
@@ -8715,18 +8707,15 @@
         ED25519: "ed25519",
         BIP340: "bip340"
       };
-      exports.AUTHJS_SERVER_URL = AUTHJS_SERVER_URL;
-      exports.FND_SERVER = FND_SERVER;
+      exports.BUILD_ENV = BUILD_ENV;
+      exports.CITADEL_SERVER_MAP = CITADEL_SERVER_MAP;
+      exports.FND_SERVER_MAP = FND_SERVER_MAP;
       exports.KEY_TYPE = KEY_TYPE;
+      exports.LEGACY_METADATA_MAP = LEGACY_METADATA_MAP;
       exports.LEGACY_NETWORKS_ROUTE_MAP = LEGACY_NETWORKS_ROUTE_MAP;
-      exports.METADATA_MAP = METADATA_MAP;
-      exports.MULTI_CLUSTER_NETWORKS = MULTI_CLUSTER_NETWORKS;
-      exports.NETWORK_MAP = NETWORK_MAP;
-      exports.PROXY_CONTRACT_ADDRESS = PROXY_CONTRACT_ADDRESS;
-      exports.SESSION_SERVER_API_URL = SESSION_SERVER_API_URL;
-      exports.SESSION_SERVER_SOCKET_URL = SESSION_SERVER_SOCKET_URL;
-      exports.SIGNER_MAP = SIGNER_MAP;
       exports.SIG_TYPE = SIG_TYPE;
+      exports.STORAGE_SERVER_MAP = STORAGE_SERVER_MAP;
+      exports.STORAGE_SERVER_SOCKET_URL_MAP = STORAGE_SERVER_SOCKET_URL_MAP;
       exports.TORUS_LEGACY_NETWORK = TORUS_LEGACY_NETWORK;
       exports.TORUS_SAPPHIRE_NETWORK = TORUS_SAPPHIRE_NETWORK;
     }
@@ -8781,18 +8770,15 @@
       "use strict";
       var constants = require_constants();
       var interfaces = require_interfaces();
-      exports.AUTHJS_SERVER_URL = constants.AUTHJS_SERVER_URL;
-      exports.FND_SERVER = constants.FND_SERVER;
+      exports.BUILD_ENV = constants.BUILD_ENV;
+      exports.CITADEL_SERVER_MAP = constants.CITADEL_SERVER_MAP;
+      exports.FND_SERVER_MAP = constants.FND_SERVER_MAP;
       exports.KEY_TYPE = constants.KEY_TYPE;
+      exports.LEGACY_METADATA_MAP = constants.LEGACY_METADATA_MAP;
       exports.LEGACY_NETWORKS_ROUTE_MAP = constants.LEGACY_NETWORKS_ROUTE_MAP;
-      exports.METADATA_MAP = constants.METADATA_MAP;
-      exports.MULTI_CLUSTER_NETWORKS = constants.MULTI_CLUSTER_NETWORKS;
-      exports.NETWORK_MAP = constants.NETWORK_MAP;
-      exports.PROXY_CONTRACT_ADDRESS = constants.PROXY_CONTRACT_ADDRESS;
-      exports.SESSION_SERVER_API_URL = constants.SESSION_SERVER_API_URL;
-      exports.SESSION_SERVER_SOCKET_URL = constants.SESSION_SERVER_SOCKET_URL;
-      exports.SIGNER_MAP = constants.SIGNER_MAP;
       exports.SIG_TYPE = constants.SIG_TYPE;
+      exports.STORAGE_SERVER_MAP = constants.STORAGE_SERVER_MAP;
+      exports.STORAGE_SERVER_SOCKET_URL_MAP = constants.STORAGE_SERVER_SOCKET_URL_MAP;
       exports.TORUS_LEGACY_NETWORK = constants.TORUS_LEGACY_NETWORK;
       exports.TORUS_SAPPHIRE_NETWORK = constants.TORUS_SAPPHIRE_NETWORK;
       exports.abi = interfaces.abi;
@@ -8814,8 +8800,9 @@
         if (!options.localstorage) options.localstorage = {};
         if (!options.localstorage.removeTimeout) options.localstorage.removeTimeout = 1e3 * 60;
         if (!options.server) options.server = {};
-        if (!options.server.api_url) options.server.api_url = `${constants.SESSION_SERVER_API_URL}/v2`;
-        if (!options.server.socket_url) options.server.socket_url = `${constants.SESSION_SERVER_SOCKET_URL}`;
+        if (!options.server.build_env) options.server.build_env = constants.BUILD_ENV.PRODUCTION;
+        if (!options.server.api_url) options.server.api_url = `${constants.STORAGE_SERVER_MAP[options.server.build_env]}/v2`;
+        if (!options.server.socket_url) options.server.socket_url = `${constants.STORAGE_SERVER_SOCKET_URL_MAP[options.server.build_env]}`;
         if (!options.server.removeTimeout) options.server.removeTimeout = 1e3 * 60 * 5;
         if (originalOptions.methods) options.methods = originalOptions.methods;
         return options;
