@@ -1,4 +1,4 @@
-import { SESSION_SERVER_API_URL, SESSION_SERVER_SOCKET_URL } from "@toruslabs/constants";
+import { BUILD_ENV, STORAGE_SERVER_MAP, STORAGE_SERVER_SOCKET_URL_MAP } from "@toruslabs/constants";
 
 import { Options } from "./types";
 
@@ -22,8 +22,9 @@ export function fillOptionsWithDefaults(originalOptions: Options = {}): Options 
 
   // server
   if (!options.server) options.server = {};
-  if (!options.server.api_url) options.server.api_url = `${SESSION_SERVER_API_URL}/v2`;
-  if (!options.server.socket_url) options.server.socket_url = `${SESSION_SERVER_SOCKET_URL}`;
+  if (!options.server.build_env) options.server.build_env = BUILD_ENV.PRODUCTION;
+  if (!options.server.api_url) options.server.api_url = `${STORAGE_SERVER_MAP[options.server.build_env]}/v2`;
+  if (!options.server.socket_url) options.server.socket_url = `${STORAGE_SERVER_SOCKET_URL_MAP[options.server.build_env]}`;
   if (!options.server.removeTimeout) options.server.removeTimeout = 1000 * 60 * 5; // 5 minutes
 
   // custom methods

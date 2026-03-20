@@ -68,7 +68,7 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.28.6",
-    "@toruslabs/constants": "^16.0.0",
+    "@toruslabs/constants": "^16.1.0",
     "@toruslabs/eccrypto": "^7.0.0",
     "@toruslabs/metadata-helpers": "^8.2.0",
     "loglevel": "^1.9.2",
