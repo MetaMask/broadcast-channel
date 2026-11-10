@@ -4,6 +4,7 @@ import * as NativeMethod from "./methods/native";
 import * as ServerMethod from "./methods/server";
 
 export { BroadcastChannel, enforceOptions, OPEN_BROADCAST_CHANNELS } from "./broadcast-channel";
+export * from "./channelSecret";
 export * from "./method-chooser";
 export { RedundantAdaptiveBroadcastChannel } from "./redundant-adaptive-broadcast-channel";
 export * from "./types";
