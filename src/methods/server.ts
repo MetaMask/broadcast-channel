@@ -7,13 +7,13 @@
  */
 
 import { getPublic, sign } from "@toruslabs/eccrypto";
-import { bytesToHex, decryptData, encryptData, keccak256Bytes, utf8ToBytes } from "@toruslabs/metadata-helpers";
+import { bytesToHex, decryptData, encryptData, hexToBytes, keccak256Bytes, utf8ToBytes } from "@toruslabs/metadata-helpers";
 import { ObliviousSet } from "oblivious-set";
 import { io, Socket } from "socket.io-client";
 
 import { fillOptionsWithDefaults } from "../options";
 import { MessageObject, Options } from "../types";
-import { generateRandomId, log, microSeconds as micro, sleep } from "../util";
+import { generateRandomId, log, microSeconds as micro, sleep, validateChannelSecret } from "../util";
 
 export const microSeconds = micro;
 
@@ -32,6 +32,7 @@ interface ChannelState {
     api_url: string;
     socket_url: string;
     allowed_origin?: string;
+    channel_secret?: string;
   };
   time: number;
   timeout?: number;
@@ -59,6 +60,32 @@ export function storageKey(channelName: string): string {
   return KEY_PREFIX + channelName;
 }
 
+type KeySource = { channelName: string; server: { channel_secret?: string } };
+
+/**
+ * Derives the channel's private key.
+ * With a channel secret: keccak256(secret) — knowledge of the private key
+ * requires possession of the out-of-band secret.
+ * Legacy fallback (no secret): keccak256(storageKey(channelName)) — INSECURE,
+ * derivable by anyone who knows the channel name.
+ */
+export function getChannelEncPrivKey(channelState: KeySource): Uint8Array {
+  const { channel_secret: channelSecret } = channelState.server;
+  if (channelSecret) {
+    return keccak256Bytes(hexToBytes(channelSecret));
+  }
+  return keccak256Bytes(utf8ToBytes(storageKey(channelState.channelName)));
+}
+
+/**
+ * The room name used on the broadcast server (and the socket room to join).
+ * Equals the channel public key hex, so it is only computable with the
+ * channel secret — or, in legacy mode, with the channel name.
+ */
+export function getChannelRoomName(channelState: KeySource): string {
+  return bytesToHex(getPublic(getChannelEncPrivKey(channelState)));
+}
+
 /**
  * writes the new message to the storage
  * and fires the storage-event so other readers can find it
@@ -67,8 +94,7 @@ export function postMessage(channelState: ChannelState, messageJson: MessageObje
   return new Promise((resolve, reject) => {
     sleep()
       .then(async () => {
-        const key = storageKey(channelState.channelName);
-        const channelEncPrivKey = keccak256Bytes(utf8ToBytes(key));
+        const channelEncPrivKey = getChannelEncPrivKey(channelState);
         const encData = await encryptData(channelEncPrivKey, {
           token: generateRandomId(),
           time: Date.now(),
@@ -137,9 +163,8 @@ export function getSocketInstance(socketUrl: string): Socket {
 export function setupSocketConnection(socketUrl: string, channelState: ChannelState, fn: (data: Message) => void): Socket {
   const socketConn = getSocketInstance(socketUrl);
 
-  const key = storageKey(channelState.channelName);
-  const channelEncPrivKey = keccak256Bytes(utf8ToBytes(key));
-  const channelPubKey = bytesToHex(getPublic(channelEncPrivKey));
+  const channelEncPrivKey = getChannelEncPrivKey(channelState);
+  const channelPubKey = getChannelRoomName(channelState);
   if (socketConn.connected) {
     socketConn.emit("v2:check_auth_status", channelPubKey, { sameIpCheck: true, allowedOrigin: channelState.server.allowed_origin });
   } else {
@@ -215,6 +240,17 @@ export function create(channelName: string, originalOptions: Options): ChannelSt
     throw new Error("BroadcastChannel: server cannot be used");
   }
 
+  const channelSecret = options.server.channel_secret;
+  if (channelSecret) {
+    validateChannelSecret(channelSecret);
+  } else {
+    log.warn(
+      "BroadcastChannel server method: no server.channel_secret set. " +
+        "Falling back to name-derived keys, which are readable and writable by anyone who learns the channel name. " +
+        "Generate one with generateChannelSecret() and share it with the receiving side out-of-band."
+    );
+  }
+
   const uuid = generateRandomId();
 
   /**
@@ -232,6 +268,7 @@ export function create(channelName: string, originalOptions: Options): ChannelSt
       api_url: options.server.api_url,
       socket_url: options.server.socket_url,
       allowed_origin: options.server.allowed_origin,
+      channel_secret: channelSecret,
     },
     time: micro(),
   };

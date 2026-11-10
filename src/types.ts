@@ -48,6 +48,14 @@ interface ServerOptions {
   removeTimeout?: number;
   timeout?: number;
   allowed_origin?: string;
+  /**
+   * 32-byte hex secret used to derive the channel's encryption/signing key.
+   * MUST be generated with `generateChannelSecret()` and shared with the receiving
+   * side out-of-band (e.g. via the popup URL fragment). When omitted, the method
+   * falls back to deriving keys from the channel name, which is readable and
+   * writable by anyone who learns the channel name.
+   */
+  channel_secret?: string;
 }
 
 export interface Options {

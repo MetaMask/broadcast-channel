@@ -1,4 +1,5 @@
 // import Bowser from 'bowser';
+import { bytesToHex } from "@toruslabs/metadata-helpers";
 import loglevel from "loglevel";
 /**
  * returns true if the given object is a promise
@@ -27,10 +28,64 @@ export function randomInt(min: number, max: number): number {
 }
 
 /**
- * https://stackoverflow.com/a/8084248
+ * Returns the WebCrypto global if available (browsers, web workers, Node >= 19).
+ * Uses globalThis so the reference works in every environment and cannot be
+ * shadowed by Node's require("crypto") shim in bundlers.
+ */
+export function getWebCrypto(): Crypto | undefined {
+  const webCrypto = globalThis.crypto;
+  if (webCrypto && typeof webCrypto.getRandomValues === "function") {
+    return webCrypto;
+  }
+  return undefined;
+}
+
+/**
+ * Returns cryptographically random bytes via WebCrypto.
+ * Falls back to Math.random only for legacy environments without crypto
+ * (used for non-security-critical ids like message dedupe tokens).
+ */
+export function getRandomBytes(length: number): Uint8Array {
+  const webCrypto = getWebCrypto();
+  if (webCrypto) {
+    const bytes = new Uint8Array(length);
+    webCrypto.getRandomValues(bytes);
+    return bytes;
+  }
+  const bytes = new Uint8Array(length);
+  for (let i = 0; i < length; i++) bytes[i] = Math.floor(Math.random() * 256);
+  return bytes;
+}
+
+/**
+ * Generates a cryptographically secure 32-byte hex channel secret.
+ * Share it with the receiving side out-of-band (e.g. via the popup URL
+ * fragment); it must never be sent to the broadcast server.
+ * Unlike getRandomBytes, this has no insecure fallback: without WebCrypto
+ * (i.e. no secure context) it throws.
+ */
+export function generateChannelSecret(): string {
+  if (!getWebCrypto()) {
+    throw new Error("BroadcastChannel: generateChannelSecret requires a WebCrypto-enabled environment (secure context)");
+  }
+  return bytesToHex(getRandomBytes(32));
+}
+
+/**
+ * Validates the format of a channel secret. 32-byte hex string.
+ */
+export function validateChannelSecret(channelSecret: string): void {
+  if (!/^[0-9a-fA-F]{64}$/.test(channelSecret)) {
+    throw new Error(`BroadcastChannel: server.channel_secret must be a 32-byte hex string (64 hex chars), got: ${JSON.stringify(channelSecret)}`);
+  }
+}
+
+/**
+ * Cryptographically secure replacement for the previous Math.random-based id.
+ * Used for internal message tokens and channel uuids (dedupe only, not secrets).
  */
 export function generateRandomId(): string {
-  return Math.random().toString(36).substring(2);
+  return Array.from(getRandomBytes(16), (byte) => byte.toString(36).padStart(2, "0")).join("");
 }
 
 let lastMs = 0;
