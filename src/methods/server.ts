@@ -74,6 +74,8 @@ export function getChannelEncPrivKey(channelState: KeySource): Uint8Array {
   if (channelSecret) {
     return keccak256Bytes(hexToBytes(channelSecret));
   }
+  // Backward compatibility with legacy mode
+  // This is insecure as it is derivable by anyone who knows the channel name.
   return keccak256Bytes(utf8ToBytes(storageKey(channelState.channelName)));
 }
 

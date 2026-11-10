@@ -34,3 +34,21 @@ A BroadcastChannel that allows you to send data between different browser-tabs o
 And a LeaderElection over the channels.
 
 # [Read the full documentation on github](https://github.com/pubkey/broadcast-channel)
+
+## Security: `server` method (v15+)
+
+When using `type: "server"`, the channel's encryption and signing key is derived from a **channel secret**,
+not from the channel name. Generate it with `generateChannelSecret()` on the initiating side and share it
+with the receiving side out-of-band — e.g. via the popup URL fragment, which is never sent to any server:
+
+```js
+import { BroadcastChannel, generateChannelSecret } from "@toruslabs/broadcast-channel";
+
+const channelSecret = generateChannelSecret(); // 32-byte hex
+const bc = new BroadcastChannel(channelName, { type: "server", server: { channel_secret: channelSecret } });
+```
+
+The receiving side must construct the channel with the **same** secret. Channels created without a secret
+fall back to the legacy name-derived keys, which anyone who learns the channel name can read and write —
+a deprecation warning is logged in that mode. Never send the secret to the broadcast server or include it
+in any URL query parameter.

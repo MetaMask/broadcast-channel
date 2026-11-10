@@ -18,6 +18,7 @@ export default defineConfig({
       // unit tests
       "test/unit/custom.method.test.ts",
       "test/unit/options.test.ts",
+      "test/unit/server.method.test.ts",
     ],
     environment: "node",
   },
