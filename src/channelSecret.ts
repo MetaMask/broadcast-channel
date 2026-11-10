@@ -62,6 +62,17 @@ export function consumeChannelSecretFromHash(): string | undefined {
   const secret = new URLSearchParams(rawHash).get(CHANNEL_SECRET_HASH_KEY);
   if (secret) {
     try {
+      // Storing the secret in `sessionStorage` is intentional and is NOT a
+      // clear-text-credentials issue (CodeQL: clear-text-storage-of-sensitive-information):
+      // - This is client-side keying material by design — the two windows of the
+      //   login flow must hold it to derive the channel key; the browser must be
+      //   able to use it.
+      // - `sessionStorage` is same-origin and per-tab: not shared across tabs,
+      //   never sent to any server, and destroyed with the popup after use
+      //   (or cleared explicitly via `clearChannelSecret()`).
+      // - The alternative (not persisting) would break the only mechanism that
+      //   lets the secret survive the OAuth redirect chain, reintroducing the
+      //   vulnerability this patch fixes.
       sessionStorage.setItem(CHANNEL_SECRET_STORAGE_KEY, secret);
     } catch (error) {
       // sessionStorage may be unavailable (e.g. storage disabled); the channel
