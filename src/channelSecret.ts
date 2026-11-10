@@ -1,3 +1,4 @@
+import { Options } from "./types";
 import { generateChannelSecret } from "./util";
 
 /**
@@ -111,10 +112,12 @@ export function clearChannelSecret(): void {
 /**
  * Merges a channel secret into broadcast-channel options. Passing `undefined`
  * keeps legacy name-derived key derivation (with a deprecation warning logged
- * by the library).
+ * by the library). Passing `undefined` options adopts the caller's existing
+ * instantiation shape (no options object) — only the secret is added.
  */
-export function withChannelSecret<T extends object>(options: T, channelSecret?: string): T & { server?: Record<string, unknown> } {
+export function withChannelSecret(options: Options | undefined, channelSecret?: string): Options {
   if (!channelSecret) return { ...options };
-  const existing = (options as { server?: Record<string, unknown> }).server;
-  return { ...options, server: { ...existing, channel_secret: channelSecret } };
+
+  const serverOptions = options?.server ?? {};
+  return { ...options, server: { ...serverOptions, channel_secret: channelSecret } };
 }
